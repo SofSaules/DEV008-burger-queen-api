@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const {connect} = require('../connect');
 
 const {
   requireAuth,
@@ -7,9 +8,9 @@ const {
 
 const {
   getUsers,
-} = require('../controller/users');
+} = require('../controller/users_controller');
 
-const initAdminUser = (app, next) => {
+const initAdminUser = async (app, next) => {
   const { adminEmail, adminPassword } = app.get('config');
   if (!adminEmail || !adminPassword) {
     return next();
@@ -20,6 +21,16 @@ const initAdminUser = (app, next) => {
     password: bcrypt.hashSync(adminPassword, 10),
     roles: { admin: true },
   };
+  const database = await connect();
+  const users = database.collection('users');
+  const user = await users.findOne({ email: adminEmail });
+  console.log('admin user: ', user);
+  if (user === null) {
+    const result = await users.insertOne(adminUser);
+    if (result.acknowledged !== true) {
+      throw 'Admin user could not be created.';
+    }
+  }
 
   // TODO: crear usuaria admin
   // Primero ver si ya existe adminUser en base de datos
@@ -77,7 +88,7 @@ module.exports = (app, next) => {
    * @code {401} si no hay cabecera de autenticación
    * @code {403} si no es ni admin
    */
-  app.get('/users', requireAdmin, getUsers);
+  app.get('/users', /*requireAdmin,*/ getUsers);
 
   /**
    * @name GET /users/:uid
