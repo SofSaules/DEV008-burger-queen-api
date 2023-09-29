@@ -9,9 +9,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  roles: {
-    admin: Boolean,
-  },
-});
+  role: {
+      type: String,
+      required: true,
+    },
+  });
 
 exports.User = mongoose.model('users', userSchema);

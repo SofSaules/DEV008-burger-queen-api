@@ -9,8 +9,14 @@ const productsSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  image: String,
-  type: String,
+  image: {
+    type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+    required: true,
+  },
   dateEntry: {
     type: Date,
     default: Date.now,
